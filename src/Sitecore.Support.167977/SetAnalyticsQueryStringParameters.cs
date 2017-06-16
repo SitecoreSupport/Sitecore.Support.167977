@@ -34,7 +34,7 @@ namespace Sitecore.Support.Modules.EmailCampaign.Core.Pipelines.GenerateLink.Hyp
         private Guid GetRecipientId(string confirmationKey)
         {
             Database contentDb = Util.GetContentDb();
-            Assert.IsNotNull(contentDb, "Sitecore Support 486611: contentDb == null");
+            Assert.IsNotNull(contentDb, "Sitecore Support 167977: contentDb == null");
             foreach (string current in contentDb.DataManager.GetPropertyKeys("EmailCampaign"))
             {
                 if (current.IndexOf(confirmationKey, StringComparison.OrdinalIgnoreCase) > -1)
@@ -45,8 +45,14 @@ namespace Sitecore.Support.Modules.EmailCampaign.Core.Pipelines.GenerateLink.Hyp
                         Guid recipientId = Guid.Parse(guid);
                         return recipientId;
                     }
-                    catch (Exception)
+                    catch (ArgumentNullException ex)
                     {
+                        Log.Error(String.Format("Sitecore Support 167977: {0}", ex.Message), this);
+                        return Guid.Empty;
+                    }
+                    catch (FormatException ex)
+                    {
+                        Log.Error(String.Format("Sitecore Support 167977: {0}", ex.Message), this);
                         return Guid.Empty;
                     }
 
