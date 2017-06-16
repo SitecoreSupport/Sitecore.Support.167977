@@ -11,15 +11,23 @@ namespace Sitecore.Support.Modules.EmailCampaign.Core.Pipelines.GenerateLink.Hyp
         public override void Process(GenerateLinkPipelineArgs args)
         {
             Assert.IsNotNull(args, "Arguments can't be null");
-            Guid recipient = GetRecipientId(args.Url.Substring(args.Url.IndexOf(GlobalSettings.ConfirmSubscriptionQueryStringKey) + GlobalSettings.ConfirmSubscriptionQueryStringKey.Length + 1));
-            if (recipient != null && recipient != Guid.Empty)
+            if (args.MailMessage.RecipientId == Guid.Empty || args.MailMessage.RecipientId == null)
             {
-                args.QueryString[GlobalSettings.AnalyticsContactIdQueryKey] = new ShortID(recipient).ToString();
+                Guid recipient = GetRecipientId(args.Url.Substring(args.Url.IndexOf(GlobalSettings.ConfirmSubscriptionQueryStringKey) + GlobalSettings.ConfirmSubscriptionQueryStringKey.Length + 1));
+                if (recipient != null)
+                {
+                    args.QueryString[GlobalSettings.AnalyticsContactIdQueryKey] = new ShortID(recipient).ToString();
+                }
+                else
+                {
+                    args.QueryString[GlobalSettings.AnalyticsContactIdQueryKey] = new ShortID(Guid.Empty).ToString();
+                }
             }
             else
             {
                 args.QueryString[GlobalSettings.AnalyticsContactIdQueryKey] = new ShortID(args.MailMessage.RecipientId).ToString();
             }
+
             args.QueryString[GlobalSettings.MessageIdQueryKey] = args.MailMessage.InnerItem.ID.ToShortID().ToString();
         }
 
